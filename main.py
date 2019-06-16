@@ -1,11 +1,12 @@
-__author__ = 'jonghewk park'
+__author__ = 'jonghewk park' #Thank You
 
-'''
-<Logic Design>
+
+'''   <Logic Design>
 This is a program that implements Quine-McCluskey Method.
 
-Written By: JongHewk Park 
-Last Edit : June 2, 2015
+Originally Written By: JongHewk Park
+Further improved by Amir Mohammad Yaghoubalipour
+Last Edit : January 17, 2019
 
 Here is the algorithm
 1. Find the prime implicants
@@ -13,12 +14,7 @@ Here is the algorithm
 3. Find essential prime implicants
 4. Use Petrick's Method to find all solutions
 
-
 '''
-
-
-import itertools
-
 
 #compare two binary strings, check where there is one difference
 def compBinary(s1,s2):
@@ -220,7 +216,7 @@ def find_minimum_cost(Chart, unchecked):
             for j in essential_prime:
                 if j == i:
                     s= s+binary_to_letter(unchecked[i])+' , '
-        print s[:(len(s)-3)]
+        print(s[:(len(s)-3)])
 
     #modifiy the chart to exclude the covered terms
     for i in range(len(essential_prime)):
@@ -306,77 +302,124 @@ def binary_to_letter(s):
     return out
 
 
+Q = input("""HELLO USER\nThis is a program that implements Quine-McCluskey Method.
+
+Originally Written By: JongHewk Park
+Further improved by Amir Mohammad Yaghoubalipour
+Last Edit : January 17, 2019
+
+Here is the algorithm
+1. Find the prime implicants
+2. Make Prime implicant chart
+3. Find essential prime implicants\n\n\nDo you wish to start? (y/n) """)
+while (not ((Q=='y') or (Q=='n'))):
+    Q = input("Wrong answer!\n\nDo you wish to start? (y/n) ")
 
 #main function
 def main():
-    #get the num of variables (bits) as input
-    n_var = int(raw_input("Enter the number of variables(bits): "))
-    #get the minterms as input
-    minterms = raw_input("Enter the minterms (ex. 0 1 2 5 9 10) : ")
-    a = minterms.split()
-    #put the numbers in list in int form
-    a = map(int, a)
+    global Q
 
-    #make a group list
-    group = [[] for x in range(n_var+1)]
+    
+    while (Q == 'y'):
+            
+        #get the num of variables (bits) as input
+        n_var = input("Enter the number of variables(bits): ")
+        n_var_check = 1
+        while(n_var_check == 1):
+            for i in n_var:
+                n_var_check = 0
+                if (i not in ['0','1','2','3','4','5','6','7','8','9']):
+                    n_var_check = 1
+                    break
+            if (n_var_check == 1):
+                n_var = input("Wrong input! please try again.\n\nEnter the number of variables(bits): ")   
+        n_var = int(n_var)
+        #get the minterms as input
+        minterms = input("Enter the minterms (ex: 0,1,2,5,9,10) : ")
+        minterm_check = 1
+        while(minterm_check == 1):
+            for i in minterms:
+                minterm_check = 0
+                if (i not in [',','0','1','2','3','4','5','6','7','8','9']):
+                    minterm_check = 1
+                    break
+            if (minterm_check == 1):
+                minterms = input("Wrong input! please try again.\n\nEnter the minterms (ex: 0,1,2,5,9,10) : ")            
+        a = minterms.split(',')
+        #put the numbers in list in int form
+        a = list(map(int, a))
 
-    for i in range(len(a)):
-        #convert to binary
-        a[i] = bin(a[i])[2:]
-        if len(a[i]) < n_var:
-            #add zeros to fill the n-bits
-            for j in range(n_var - len(a[i])):
-                a[i] = '0'+ a[i]
-        #if incorrect input
-        elif len(a[i]) > n_var:
-            print '\nError : Choose the correct number of variables(bits)\n'
-            return
-        #count the num of 1
-        index = a[i].count('1')
-        #group by num of 1 separately
-        group[index].append(a[i])
+        #make a group list
+        group = [[] for x in range(n_var+1)]
 
-
-    all_group=[]
-    unchecked = []
-    #combine the pairs in series until nothing new can be combined
-    while check_empty(group) == False:
-        all_group.append(group)
-        next_group, unchecked = combinePairs(group,unchecked)
-        group = remove_redundant(next_group)
-
-    s = "\nPrime Implicants :\n"
-    for i in unchecked:
-        s= s + binary_to_letter(i) + " , "
-    print s[:(len(s)-3)]
-
-    #make the prime implicant chart
-    Chart = [[0 for x in range(len(a))] for x in range(len(unchecked))]
-
-    for i in range(len(a)):
-        for j in range (len(unchecked)):
-            #term is same as number
-            if compBinarySame(unchecked[j], a[i]):
-               Chart[j][i] = 1
-
-    #prime contains the index of the prime implicant terms
-    #prime = remove_redundant_list(find_minimum_cost(Chart))
-    primes = find_minimum_cost(Chart, unchecked)
-    primes = remove_redundant(primes)
+        for i in range(len(a)):
+            #convert to binary
+            a[i] = bin(a[i])[2:]
+            if len(a[i]) < n_var:
+                #add zeros to fill the n-bits
+                for j in range(n_var - len(a[i])):
+                    a[i] = '0'+ a[i]
+            #if incorrect input
+            elif len(a[i]) > n_var:
+                print('\nError : Choose the correct number of variables(bits)\n')
+                main()
+                return
+            #count the num of 1
+            index = a[i].count('1')
+            #group by num of 1 separately
+            group[index].append(a[i])
 
 
-    print "\n--  Answers --\n"
+        all_group=[]
+        unchecked = []
+        #combine the pairs in series until nothing new can be combined
+        while check_empty(group) == False:
+            all_group.append(group)
+            next_group, unchecked = combinePairs(group,unchecked)
+            group = remove_redundant(next_group)
 
-    for prime in primes:
-        s=''
-        for i in range(len(unchecked)):
-            for j in prime:
-                if j == i:
-                    s= s+binary_to_letter(unchecked[i])+' + '
-        print s[:(len(s)-3)]
+        s = "\nPrime Implicants :\n"
+        for i in unchecked:
+            s= s + binary_to_letter(i) + " , "
+        print(s[:(len(s)-3)])
 
+        #make the prime implicant chart
+        Chart = [[0 for x in range(len(a))] for x in range(len(unchecked))]
+
+        for i in range(len(a)):
+            for j in range (len(unchecked)):
+                #term is same as number
+                if compBinarySame(unchecked[j], a[i]):
+                   Chart[j][i] = 1
+
+        #prime contains the index of the prime implicant terms
+        #prime = remove_redundant_list(find_minimum_cost(Chart))
+        primes = find_minimum_cost(Chart, unchecked)
+        primes = remove_redundant(primes)
+
+
+        print("\n--  The Answer Is --\n")
+        print("f = ", end = '')
+        for prime in primes:
+            s=''
+            for i in range(len(unchecked)):
+                for j in prime:
+                    if j == i:
+                        s= s+binary_to_letter(unchecked[i])+' + '
+            print(s[:(len(s)-3)])
+        Q = input("\nDo you Wish to go again?(y/n) ")
+        while (not ((Q=='y') or (Q=='n'))):
+            Q = input("Wrong answer!\n\nDo you Wish to go again?(y/n) ")
+    
 
 
 if __name__ == "__main__":
-    main()
-    A = raw_input("\nPress Enter to Quit")
+    try:
+        main()
+    except:
+        print("\nOops!  That was not valid.  Try again...\n")
+        main()
+    finally:
+        print("\nOK, BYE!!!\n\n\n\n\n\n")
+
+
